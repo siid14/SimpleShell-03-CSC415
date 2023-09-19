@@ -24,8 +24,9 @@ int main(int argumentCount, char *argumentValues[])
 
     // * PARSE USER INPUT
     char *command = strtok(input, " "); // tokenize first string of user input
-    char *args[32];
     printf("command: %s\n", command);
+
+    char *args[32];
     // ** store remaining input string (arguments) into args
     int arg_count = 0;
 
@@ -34,7 +35,7 @@ int main(int argumentCount, char *argumentValues[])
     {
         arg_count++;
     }
-    printf("Number of argument in args: %s\n", strlen(input));
+    printf("Number of argument in args: %d\n", arg_count);
 
     // * EXECUTE COMMANDS
 }
