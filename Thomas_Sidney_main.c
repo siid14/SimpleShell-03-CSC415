@@ -12,6 +12,12 @@ int main(int argumentCount, char *argumentValues[])
         printf("YourShell> ");              // indicate shell ready to accept user input
         fgets(input, sizeof(input), stdin); // read the user input + store in input
 
+        // if (fgets(input, sizeof(input), stdin) == NULL)
+        // {
+        //     // if shell encounters EOF while reading it exits gracefully
+        //     return 0;
+        // }
+
         printf("Input size: %zu\n", strlen(input));
         printf("Input size (excluding newline): %zu\n", strlen(input) - 1);
 
@@ -38,4 +44,28 @@ int main(int argumentCount, char *argumentValues[])
     printf("Number of argument in args: %d\n", arg_count);
 
     // * EXECUTE COMMANDS
+    pid_t child_pid = fork(); // create a new process (child).
+
+    if (child_pid == 0) // fork succeed to create a child process
+    {
+        // child process
+        execvp(command, args); // execute the specified command with given arguments
+
+        // if execvp() fails, handle the error
+        perror("execvp"); // print an error message
+        exit(1);          // exit the child process with a non-zero status to indicate an error
+    }
+    else if (child_pid < 0) // fork failed to create a child process
+    {
+        perror("fork"); // print an error message
+    }
+    else // parent process
+    {
+        int status;                     // variable to store the child process's exit status
+        waitpid(child_pid, &status, 0); // wait for the child process to complete
+
+        // print the child PID and return result (exit status)
+        printf("Child PID: %d\n", child_pid);
+        printf("Return Result: %d\n", status);
+    }
 }
