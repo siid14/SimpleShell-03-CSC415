@@ -17,7 +17,7 @@ int main(int argumentCount, char *argumentValues[])
         fgets(input, sizeof(input), stdin); // read the user input + store in input
 
         // handle input error
-        if (input == NULL)
+        if (fgets(input, sizeof(input), stdin) == NULL)
         {
             // check if fgets encountered EOF
             if (feof(stdin))
