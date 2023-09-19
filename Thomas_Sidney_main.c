@@ -9,16 +9,17 @@
 int main(int argumentCount, char *argumentValues[])
 {
     // * READ USER INPUT
-    char input[1024]; // store user input command of 1024 characters
+    char input[187]; // store user input command of 1024 characters
 
     while (1) // infinite loop
     {
         printf("YourShell> ");              // indicate shell ready to accept user input
         fgets(input, sizeof(input), stdin); // read the user input + store in input
 
-        if (fgets(input, sizeof(input), stdin) == NULL)
+        // handle input error
+        if (input == NULL)
         {
-            // check if fgets encountered EOF (Ctrl+D)
+            // check if fgets encountered EOF
             if (feof(stdin))
             {
                 // gracefully exit on EOF without reporting an error
