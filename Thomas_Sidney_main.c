@@ -4,6 +4,7 @@
 #include <sys/types.h> // include for pid_t
 #include <sys/wait.h>  // include for waitpid
 #include <unistd.h>    // include for fork and execvp
+#include <errno.h>     // include errno to access the error code
 
 int main(int argumentCount, char *argumentValues[])
 {
@@ -15,17 +16,22 @@ int main(int argumentCount, char *argumentValues[])
         printf("YourShell> ");              // indicate shell ready to accept user input
         fgets(input, sizeof(input), stdin); // read the user input + store in input
 
-        // check if user input is empty - keep looping for next user input
-        if (input[0] == '\n') // check for empty input (just Enter key)
+        if (fgets(input, sizeof(input), stdin) == NULL)
         {
-            continue; // skip processing and prompt again
+            // check if fgets encountered EOF (Ctrl+D)
+            if (feof(stdin))
+            {
+                // gracefully exit on EOF without reporting an error
+                printf("Exiting the shell.\n");
+                break;
+            }
+            else
+            {
+                // handle and report other input errors
+                perror("fgets");
+                exit(1); // exit the shell on error
+            }
         }
-
-        // if (fgets(input, sizeof(input), stdin) == NULL)
-        // {
-        //     // if shell encounters EOF while reading it exits gracefully
-        //     return 0;
-        // }
 
         printf("Input size (including newline): %zu\n", strlen(input));
         printf("Input size (excluding newline): %zu\n", strlen(input) - 1);
