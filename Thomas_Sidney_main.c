@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h> // include for pid_t
+#include <sys/wait.h>  // include for waitpid
+#include <unistd.h>    // include for fork and execvp
 
 int main(int argumentCount, char *argumentValues[])
 {
@@ -18,7 +21,7 @@ int main(int argumentCount, char *argumentValues[])
         //     return 0;
         // }
 
-        printf("Input size: %zu\n", strlen(input));
+        printf("Input size (including newline): %zu\n", strlen(input));
         printf("Input size (excluding newline): %zu\n", strlen(input) - 1);
 
         // remove trailing newline character if present
@@ -30,14 +33,14 @@ int main(int argumentCount, char *argumentValues[])
 
     // * PARSE USER INPUT
     char *command = strtok(input, " "); // tokenize first string of user input
-    printf("command: %s\n", command);
+    printf("Command: %s\n", command);
 
     char *args[32];
     // ** store remaining input string (arguments) into args
     int arg_count = 0;
 
-    while (args[arg_count] = strtok(NULL, " ")) // tokenize each remaining string of input
-                                                // until no more found
+    while ((args[arg_count] = strtok(NULL, " "))) // tokenize each remaining string of input
+                                                  // until no more found
     {
         arg_count++;
     }
