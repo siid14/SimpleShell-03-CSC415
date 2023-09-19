@@ -15,6 +15,12 @@ int main(int argumentCount, char *argumentValues[])
         printf("YourShell> ");              // indicate shell ready to accept user input
         fgets(input, sizeof(input), stdin); // read the user input + store in input
 
+        // check if user input is empty - keep looping for next user input
+        if (input[0] == '\n') // check for empty input (just Enter key)
+        {
+            continue; // skip processing and prompt again
+        }
+
         // if (fgets(input, sizeof(input), stdin) == NULL)
         // {
         //     // if shell encounters EOF while reading it exits gracefully
