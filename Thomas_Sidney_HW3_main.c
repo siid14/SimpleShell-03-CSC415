@@ -11,38 +11,38 @@ int main(int argumentCount, char *argumentValues[])
     // * READ USER INPUT
     char input[187]; // store user input command of 1024 characters
 
-    while (1) // infinite loop
+    // while (1) // infinite loop
+    // {
+    printf("YourShell> ");              // indicate shell ready to accept user input
+    fgets(input, sizeof(input), stdin); // read the user input + store in input
+
+    // handle input error
+    if (fgets(input, sizeof(input), stdin) == NULL)
     {
-        printf("YourShell> ");              // indicate shell ready to accept user input
-        fgets(input, sizeof(input), stdin); // read the user input + store in input
-
-        // handle input error
-        if (fgets(input, sizeof(input), stdin) == NULL)
+        // check if fgets encountered EOF
+        if (feof(stdin))
         {
-            // check if fgets encountered EOF
-            if (feof(stdin))
-            {
-                // gracefully exit on EOF without reporting an error
-                printf("Exiting the shell.\n");
-                break;
-            }
-            else
-            {
-                // handle and report other input errors
-                perror("fgets");
-                exit(1); // exit the shell on error
-            }
+            // gracefully exit on EOF without reporting an error
+            printf("Exiting the shell.\n");
+            // break;
         }
-
-        printf("Input size (including newline): %zu\n", strlen(input));
-        printf("Input size (excluding newline): %zu\n", strlen(input) - 1);
-
-        // remove trailing newline character if present
-        if (input[strlen(input) - 1] == '\n') // check if last char in input is a newline character
+        else
         {
-            input[strlen(input) - 1] = '\0'; // replace '\n' with null terminator '\0'
+            // handle and report other input errors
+            perror("fgets");
+            exit(1); // exit the shell on error
         }
     }
+    //}
+    printf("Input size (including newline): %zu\n", strlen(input));
+    printf("Input size (excluding newline): %zu\n", strlen(input) - 1);
+
+    // remove trailing newline character if present
+    if (input[strlen(input) - 1] == '\n') // check if last char in input is a newline character
+    {
+        input[strlen(input) - 1] = '\0'; // replace '\n' with null terminator '\0'
+    }
+    // }
 
     // * PARSE USER INPUT
     char *command = strtok(input, " "); // tokenize first string of user input
