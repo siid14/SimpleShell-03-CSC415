@@ -23,16 +23,18 @@ int main(int argumentCount, char *argumentValues[])
             if (feof(stdin))
             {
                 // gracefully exit on EOF without reporting an error
-                printf("Exiting the shell.\n");
+                printf("EOF error - Exiting the shell\n");
                 return 0; // ? break to use instead
             }
             else
             {
-                // handle and report other input errors
-                perror("fgets");
-                exit(1); // exit the shell on error
+
+                perror("fgets"); // report fgets errors
+                exit(1);         // exit the shell on error
             }
         }
+
+        // handle empty input - edge case
         if (strlen(input) == 1)
         {
             printf("Empty string entered, please enter a valid string\n");
@@ -54,6 +56,13 @@ int main(int argumentCount, char *argumentValues[])
         char *command = strtok(input, " "); // tokenize first string of user input
         printf("Command: %s\n", command);
 
+        // handle exit input to exit shell (edge case)
+        if (strcmp(command, "exit") == 0)
+        {
+            printf("User type 'exit' - Exiting the shell\n");
+            break; // Exit the loop and terminate the shell
+        }
+
         char *args[32];
         // ** store remaining input string (arguments) into args
         int arg_count = 0;
@@ -66,6 +75,7 @@ int main(int argumentCount, char *argumentValues[])
         printf("Number of argument in args: %d\n", arg_count);
 
         // * EXECUTE COMMANDS
+        printf("START EXECUTION USER COMMAND\n");
         pid_t child_pid = fork(); // create a new process (child).
 
         if (child_pid == 0) // fork succeed to create a child process
@@ -90,5 +100,6 @@ int main(int argumentCount, char *argumentValues[])
             printf("Child PID: %d\n", child_pid);
             printf("Return Result: %d\n", status);
         }
+        printf("END EXECUTION USER COMMAND\n");
     }
 }
