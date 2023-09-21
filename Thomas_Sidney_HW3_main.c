@@ -9,7 +9,7 @@
 int main(int argumentCount, char *argumentValues[])
 {
     // * READ USER INPUT
-    char input[187]; // store user input command of 1024 characters
+    char input[187]; // store user input command of 187 characters
 
     while (1) // infinite loop
     {
@@ -63,7 +63,7 @@ int main(int argumentCount, char *argumentValues[])
             break; // exit the loop and terminate the shell
         }
 
-        char *args[32];
+        char **args[];
         // * store remaining input string (arguments) into args
         int arg_count = 0;
 
