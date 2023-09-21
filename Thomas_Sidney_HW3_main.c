@@ -60,11 +60,11 @@ int main(int argumentCount, char *argumentValues[])
         if (strcmp(command, "exit") == 0)
         {
             printf("User type 'exit' - Exiting the shell\n");
-            break; // Exit the loop and terminate the shell
+            break; // exit the loop and terminate the shell
         }
 
         char *args[32];
-        // ** store remaining input string (arguments) into args
+        // * store remaining input string (arguments) into args
         int arg_count = 0;
 
         while ((args[arg_count] = strtok(NULL, " "))) // tokenize each remaining string of input
@@ -73,6 +73,12 @@ int main(int argumentCount, char *argumentValues[])
             arg_count++;
         }
         printf("Number of argument in args: %d\n", arg_count);
+
+        // ensure the last element of the args array is NULL
+        args[arg_count + 1] = NULL;
+
+        int arraySize = sizeof(args) / sizeof(args[0]);
+        printf("Number of arguments in args (after adding NULL - last index): %d\n", arraySize);
 
         // * EXECUTE COMMANDS
         printf("START EXECUTION USER COMMAND\n");
