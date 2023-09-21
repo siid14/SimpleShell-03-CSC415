@@ -63,7 +63,7 @@ int main(int argumentCount, char *argumentValues[])
             break; // exit the loop and terminate the shell
         }
 
-        char **args[];
+        char *args[32];
         // * store remaining input string (arguments) into args
         int arg_count = 0;
 
