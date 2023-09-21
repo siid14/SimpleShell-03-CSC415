@@ -28,7 +28,6 @@ int main(int argumentCount, char *argumentValues[])
             }
             else
             {
-
                 perror("fgets"); // report fgets errors
                 exit(1);         // exit the shell on error
             }
@@ -74,11 +73,51 @@ int main(int argumentCount, char *argumentValues[])
         }
         printf("Number of argument in args: %d\n", arg_count);
 
-        // ensure the last element of the args array is NULL
-        args[arg_count + 1] = NULL;
+        int argsSize = sizeof(args) / sizeof(args[0]);
+        printf("Number of elements in args: %d\n", argsSize);
 
-        int arraySize = sizeof(args) / sizeof(args[0]);
-        printf("Number of arguments in args (after adding NULL - last index): %d\n", arraySize);
+        char **argsTest;
+        int len = arg_count; // number of strings to store
+        printf("len: %d\n", len);
+        argsTest = malloc(sizeof(char *) * len);
+
+        // check if memory allocation was successful
+        if (argsTest == NULL)
+        {
+            perror("Memory allocation failed");
+            return 1;
+        }
+
+        // copy args content into argsTest
+        for (int i = 0; i < len; i++)
+        {
+            argsTest[i] = args[i];
+            printf("argsTest[%d]: %s\n", i, argsTest[i]);
+        }
+
+        // check if memory allocation for strings was successful
+        for (int i = 0; i < len; i++)
+        {
+            if (args[i] == NULL)
+            {
+                perror("Memory allocation for strings failed");
+                return 1;
+            }
+        }
+
+        // ensure the last element of the argsTest array is NULL
+        argsTest[len] = NULL;
+        printf("argsTest[%d]: %s\n", len, argsTest[len]);
+        printf("Printing argsTest:\n");
+
+        // printing argsTest size
+        for (int i = 0; argsTest[i] != NULL; i++)
+        {
+            printf("%s\n", argsTest[i]);
+        }
+
+        int argsTestSize = sizeof(argsTest) / sizeof(argsTest[0]);
+        printf("Number of arguments in argsTest (after adding NULL - last index): %d\n", argsTestSize);
 
         // * EXECUTE COMMANDS
         printf("START EXECUTION USER COMMAND\n");
@@ -87,7 +126,7 @@ int main(int argumentCount, char *argumentValues[])
         if (child_pid == 0) // fork succeed to create a child process
         {
             // child process
-            execvp(command, args); // execute the specified command with given arguments
+            execvp(command, argsTest); // execute the specified command with given arguments
 
             // if execvp() fails, handle the error
             perror("execvp"); // print an error message
@@ -107,5 +146,7 @@ int main(int argumentCount, char *argumentValues[])
             printf("Return Result: %d\n", status);
         }
         printf("END EXECUTION USER COMMAND\n");
+
+        free(argsTest); // free allocated memory
     }
 }
