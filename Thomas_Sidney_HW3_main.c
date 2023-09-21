@@ -13,8 +13,9 @@ int main(int argumentCount, char *argumentValues[])
 
     while (1) // infinite loop
     {
-        printf("YourShell> ");              // indicate shell ready to accept user input
-        fgets(input, sizeof(input), stdin); // read the user input + store in input
+        printf("YourShell> "); // indicate shell ready to accept user input
+        // ? unacessary - redundant
+        // fgets(input, sizeof(input), stdin); // read the user input + store in input
 
         // handle input error
         if (fgets(input, sizeof(input), stdin) == NULL)
@@ -71,20 +72,21 @@ int main(int argumentCount, char *argumentValues[])
         {
             arg_count++;
         }
-        printf("Number of argument in args: %d\n", arg_count);
+        // printf("Number of argument in args: %d\n", arg_count);
 
-        int argsSize = sizeof(args) / sizeof(args[0]);
-        printf("Number of elements in args: %d\n", argsSize);
+        // int argsSize = sizeof(args) / sizeof(args[0]);
+        // printf("Number of elements in args: %d\n", argsSize);
 
         char **argsTest;
         int len = arg_count; // number of strings to store
-        printf("len: %d\n", len);
+        // printf("len: %d\n", len);
         argsTest = malloc(sizeof(char *) * len);
 
         // check if memory allocation was successful
         if (argsTest == NULL)
         {
             perror("Memory allocation failed");
+            free(argsTest); // free the allocated memory
             return 1;
         }
 
@@ -92,9 +94,10 @@ int main(int argumentCount, char *argumentValues[])
         for (int i = 0; i < len; i++)
         {
             argsTest[i] = args[i];
-            printf("argsTest[%d]: %s\n", i, argsTest[i]);
+            // printf("argsTest[%d]: %s\n", i, argsTest[i]);
         }
 
+        // ? unaccessary
         // check if memory allocation for strings was successful
         for (int i = 0; i < len; i++)
         {
@@ -107,17 +110,17 @@ int main(int argumentCount, char *argumentValues[])
 
         // ensure the last element of the argsTest array is NULL
         argsTest[len] = NULL;
-        printf("argsTest[%d]: %s\n", len, argsTest[len]);
-        printf("Printing argsTest:\n");
+        // printf("argsTest[%d]: %s\n", len, argsTest[len]);
+        // printf("Printing argsTest:\n");
 
         // printing argsTest size
-        for (int i = 0; argsTest[i] != NULL; i++)
-        {
-            printf("%s\n", argsTest[i]);
-        }
+        // for (int i = 0; argsTest[i] != NULL; i++)
+        // {
+        //     printf("%s\n", argsTest[i]);
+        // }
 
-        int argsTestSize = sizeof(argsTest) / sizeof(argsTest[0]);
-        printf("Number of arguments in argsTest (after adding NULL - last index): %d\n", argsTestSize);
+        // int argsTestSize = sizeof(argsTest) / sizeof(argsTest[0]);
+        // printf("Number of arguments in argsTest (after adding NULL - last index): %d\n", argsTestSize);
 
         // * EXECUTE COMMANDS
         printf("START EXECUTION USER COMMAND\n");
@@ -128,9 +131,11 @@ int main(int argumentCount, char *argumentValues[])
             // child process
             execvp(command, argsTest); // execute the specified command with given arguments
 
+            // if execvp() fails, it means the command doesn't exist
+            fprintf(stderr, "Command '%s' not found\n", command);
             // if execvp() fails, handle the error
             perror("execvp"); // print an error message
-            exit(1);          // exit the child process with a non-zero status to indicate an error
+            _exit(1);         // exit the child process with a non-zero status to indicate an error
         }
         else if (child_pid < 0) // fork failed to create a child process
         {
