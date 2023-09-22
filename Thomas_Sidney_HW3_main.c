@@ -22,7 +22,7 @@
 #include <sys/wait.h>  // include for waitpid
 #include <unistd.h>    // include for fork and execvp
 #include <errno.h>     // include errno to access the error code
-#include <stdbool.h>   // Include this header for bool type
+#include <stdbool.h>   // include this header for bool type
 #include <ctype.h>
 
 // function to check if the input is empty or contains only whitespace
@@ -88,26 +88,22 @@ int main(int argumentCount, char *argumentValues[])
         }
 
         // check for pipes in user input
-        char *pipe_cmd = strchr(input, '|');
+        char *pipeCMD = strchr(input, '|');
 
         // * HANDLE USER INPUT IF IT HAS PIPING OR NOT
-        if (pipe_cmd) // handle piping logic
+        if (pipeCMD) // handle piping logic
         {
-            printf("PIPE DETECTED\n");
-
             // * PARSE USER INPUT
             // split input into commands based on '|'
             char *command = strtok_r(input, "|", &saveptr);
-            int pipe_index = 0; // initialize the pipe index
+            int pipeIndex = 0; // initialize the pipe index
             while (command != NULL)
             {
-                // trim leading and trailing spaces from the command
-                char *trimmed_command = strtok(command, " \t\r\n");
 
                 // create a pipe for the next pair of commands (if applicable)
-                if (pipe_index < MAX_COMMANDS - 1)
+                if (pipeIndex < MAX_COMMANDS - 1)
                 {
-                    if (pipe(pipes[pipe_index]) == -1)
+                    if (pipe(pipes[pipeIndex]) == -1)
                     {
                         perror("pipe");
                         exit(1);
@@ -116,38 +112,38 @@ int main(int argumentCount, char *argumentValues[])
 
                 // * EXECUTE COMMANDS
                 // fork a child process for the current command
-                pid_t child_pid = fork();
-                if (child_pid == -1)
+                pid_t childPID = fork();
+                if (childPID == -1)
                 {
                     perror("fork");
                     exit(1);
                 }
 
-                if (child_pid == 0)
+                if (childPID == 0)
                 {
                     // child process
-                    if (pipe_index > 0)
+                    if (pipeIndex > 0)
                     {
                         // redirect standard input (stdin)
                         // to the read end of the previous pipe
-                        dup2(pipes[pipe_index - 1][0], 0);
+                        dup2(pipes[pipeIndex - 1][0], 0);
                         // close the read end of the previous pipe
-                        close(pipes[pipe_index - 1][0]);
+                        close(pipes[pipeIndex - 1][0]);
                     }
 
-                    if (pipe_index < MAX_COMMANDS - 1)
+                    if (pipeIndex < MAX_COMMANDS - 1)
                     {
                         // redirect standard output (stdout)
                         // to the write end of the current pipe
-                        dup2(pipes[pipe_index][1], 1);
+                        dup2(pipes[pipeIndex][1], 1);
                         // close the write end of the current pipe
-                        close(pipes[pipe_index][1]);
+                        close(pipes[pipeIndex][1]);
                     }
 
                     // close all other pipe ends in the child process
                     for (int i = 0; i < MAX_COMMANDS - 1; i++)
                     {
-                        if (i != pipe_index - 1 && i != pipe_index)
+                        if (i != pipeIndex - 1 && i != pipeIndex)
                         {
                             close(pipes[i][0]);
                             close(pipes[i][1]);
@@ -159,17 +155,17 @@ int main(int argumentCount, char *argumentValues[])
                     perror("exec");
                     exit(1);
                 }
-                else
+                else // parent process
                 {
-                    // parent process
+
                     // close pipe ends in the parent process
-                    if (pipe_index > 0)
+                    if (pipeIndex > 0)
                     {
-                        close(pipes[pipe_index - 1][0]);
-                        close(pipes[pipe_index - 1][1]);
+                        close(pipes[pipeIndex - 1][0]);
+                        close(pipes[pipeIndex - 1][1]);
                     }
 
-                    pipe_index++;
+                    pipeIndex++;
                 }
 
                 // move to the next command
@@ -177,7 +173,7 @@ int main(int argumentCount, char *argumentValues[])
             }
 
             // close unused pipe ends
-            for (int i = 0; i < pipe_index; i++)
+            for (int i = 0; i < pipeIndex; i++)
             {
                 // close the write end of the previous pipe
                 close(pipes[i][1]);
@@ -188,7 +184,7 @@ int main(int argumentCount, char *argumentValues[])
         }
         else // handle non-piping logic
         {
-            printf("NO PIPE DETECTED\n");
+            // * PARSE USER INPUT
             // remove trailing newline character if present
             // check if last char in input is a newline character
             if (input[strlen(input) - 1] == '\n')
@@ -197,7 +193,6 @@ int main(int argumentCount, char *argumentValues[])
                 input[strlen(input) - 1] = '\0';
             }
 
-            // * PARSE USER INPUT
             // tokenize first string of user input
             char *command = strtok(input, " ");
 
@@ -208,18 +203,18 @@ int main(int argumentCount, char *argumentValues[])
                 break; // exit the loop and terminate the shell
             }
 
-            char *args[32];
-            // * store remaining input string (arguments) into args
-            int arg_count = 0;
+            char *argsA[32];
+            // * store remaining input string (arguments) into argsA
+            int argsCountA = 0;
 
             bool vectorOverrun = false;
             // tokenize each remaining string of input until no more found
-            while ((args[arg_count] = strtok(NULL, " ")))
+            while ((argsA[argsCountA] = strtok(NULL, " ")))
             {
-                arg_count++;
+                argsCountA++;
 
                 // check for argument vector overrun
-                if (arg_count >= MAX_ARGUMENTS)
+                if (argsCountA >= MAX_ARGUMENTS)
                 {
                     vectorOverrun = true;
                 }
@@ -232,47 +227,46 @@ int main(int argumentCount, char *argumentValues[])
                 break;
             }
 
-            char **argsTest;
-            int len = arg_count; // number of strings to store
+            char **argsB;
+            int len = argsCountA; // number of strings to store
 
-            argsTest = malloc(sizeof(char *) * len);
+            argsB = malloc(sizeof(char *) * len);
 
             // check if memory allocation was successful
-            if (argsTest == NULL)
+            if (argsB == NULL)
             {
                 perror("Memory allocation failed");
-                free(argsTest); // free the allocated memory
+                free(argsB); // free the allocated memory
                 return 1;
             }
 
-            // copy args content into argsTest
+            // copy argsA content into argsB
             for (int i = 0; i < len; i++)
             {
-                argsTest[i] = args[i];
+                argsB[i] = argsA[i];
             }
 
             // check if memory allocation for strings was successful
             for (int i = 0; i < len; i++)
             {
-                if (args[i] == NULL)
+                if (argsA[i] == NULL)
                 {
                     perror("Memory allocation for strings failed");
                     return 1;
                 }
             }
 
-            // ensure the last element of the argsTest array is NULL
-            argsTest[len] = NULL;
+            // ensure the last element of the argsB array is NULL
+            argsB[len] = NULL;
 
             // * EXECUTE COMMANDS
-            printf("START EXECUTION USER COMMAND\n");
-            pid_t child_pid = fork(); // create a new process (child).
+            pid_t childPID = fork(); // create a new process (child).
 
-            if (child_pid == 0) // fork succeed to create a child process
+            if (childPID == 0) // fork succeed to create a child process
             {
                 // child process
                 // execute the specified command with given arguments
-                execvp(command, argsTest);
+                execvp(command, argsB);
 
                 // if execvp() fails, it means the command doesn't exist
                 fprintf(stderr, "Command '%s' not found\n", command);
@@ -282,7 +276,7 @@ int main(int argumentCount, char *argumentValues[])
                 // with a non-zero status to indicate an error
                 _exit(1);
             }
-            else if (child_pid < 0) // fork failed to create a child process
+            else if (childPID < 0) // fork failed to create a child process
             {
                 perror("fork"); // print an error message
             }
@@ -291,14 +285,13 @@ int main(int argumentCount, char *argumentValues[])
                 // store the child process's exit status
                 int status;
                 // wait for the child process to complete
-                waitpid(child_pid, &status, 0);
+                waitpid(childPID, &status, 0);
 
                 // print the child PID and return result (exit status)
-                printf("Child PID: %d\n", child_pid);
+                printf("Child PID: %d\n", childPID);
                 printf("Return Result: %d\n", status);
             }
-            printf("END EXECUTION USER COMMAND\n");
-            free(argsTest); // free allocated memory
+            free(argsB); // free allocated memory
         }
     }
 }
