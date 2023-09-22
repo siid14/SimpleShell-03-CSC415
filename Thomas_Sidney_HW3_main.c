@@ -10,6 +10,7 @@
 
 // ! don't forget to use strtok_r instead of strtok to not lose points
 
+// function to check if the input is empty or contains only whitespace
 bool isWhiteSpaceInput(const char *input)
 {
     // iterate through each character in the input string
@@ -31,16 +32,14 @@ int main(int argumentCount, char *argumentValues[])
 {
     // * READ USER INPUT
     char input[187];                // store user input command of 187 characters
-    char *saveptr;                  // ave pointer for strtok_r
+    char *saveptr;                  // save pointer for strtok_r
     int pipes[MAX_COMMANDS - 1][2]; // array to store pipe file descriptors
 
     while (1) // infinite loop
     {
         printf("YourShell> "); // indicate shell ready to accept user input
-                               // ? unacessary - redundant
-                               // fgets(input, sizeof(input), stdin); // read the user input + store in input
 
-        // read user input + handle error
+        // read user input + handle errors
         if (fgets(input, sizeof(input), stdin) == NULL)
         {
             // check if fgets encountered EOF
@@ -65,23 +64,22 @@ int main(int argumentCount, char *argumentValues[])
             continue;
         }
 
-        // Check for whitespace input
+        // check for whitespace input
         if (isWhiteSpaceInput(input))
         {
             printf("Blank line entered, please enter a valid command\n");
             continue;
         }
 
-        printf("Input size (including newline): %zu\n", strlen(input));
-        printf("Input size (excluding newline): %zu\n", strlen(input) - 1);
+        // printf("Input size (including newline): %zu\n", strlen(input));
+        // printf("Input size (excluding newline): %zu\n", strlen(input) - 1);
 
         // check for pipes in user input
         char *pipe_cmd = strchr(input, '|');
 
-        if (pipe_cmd)
+        if (pipe_cmd) // handle piping logic
         {
             printf("PIPE DETECTED\n");
-            // handle piping logic
             // parse and execute commands separated by pipes
             // create pipes, fork processes, and redirect IO
 
