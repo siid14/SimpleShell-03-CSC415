@@ -5,7 +5,7 @@
  * GitHub ID: siid14
  * Project: Assignment 3 – Simple Shell
  *
- * File: Thomas_Sidnney_HW3_main.c
+ * File: Thomas_Sidney_HW3_main.c
  *
  * Description:  The provided code is a C program for a simple shell.
  *               It allows users to input and execute command-line commands.
