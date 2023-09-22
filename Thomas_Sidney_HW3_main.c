@@ -5,8 +5,24 @@
 #include <sys/wait.h>  // include for waitpid
 #include <unistd.h>    // include for fork and execvp
 #include <errno.h>     // include errno to access the error code
+#include <stdbool.h>   // Include this header for bool type
+#include <ctype.h>
 
 // ! don't forget to use strtok_r instead of strtok to not lose points
+
+bool isWhiteSpaceInput(const char *input)
+{
+    // iterate through each character in the input string
+    for (int i = 0; input[i] != '\0'; i++)
+    {
+        // check if the character is not a whitespace character
+        if (!isspace(input[i]))
+        {
+            return false; // if any non-whitespace character is found, return false
+        }
+    }
+    return true; // if all characters are whitespace, return true
+}
 
 // maximum number of commands in a pipeline
 #define MAX_COMMANDS 10
@@ -46,6 +62,13 @@ int main(int argumentCount, char *argumentValues[])
         {
             printf("Empty string entered, please enter a valid string\n");
             perror("Empty string error");
+            continue;
+        }
+
+        // Check for whitespace input
+        if (isWhiteSpaceInput(input))
+        {
+            printf("Blank line entered, please enter a valid command\n");
             continue;
         }
 
@@ -113,7 +136,7 @@ int main(int argumentCount, char *argumentValues[])
                         dup2(pipes[pipe_index][1], 1);
                         close(pipes[pipe_index][1]); // close the write end of the current pipe
                         printf("Child: Redirected stdout to write end of Pipe %d\n", pipe_index);
-                                        }
+                    }
 
                     // close all other pipe ends in the child process
                     for (int i = 0; i < MAX_COMMANDS - 1; i++)
@@ -175,7 +198,7 @@ int main(int argumentCount, char *argumentValues[])
             printf("Command: %s\n", command);
 
             // handle exit input to exit shell (edge case)
-            if (strcmp(command, "exit") == 0)
+            if (strcmp(command, "exit") == 0 || strcmp(command, "EXIT") == 0)
             {
                 printf("User type 'exit' - Exiting the shell\n");
                 break; // exit the loop and terminate the shell
