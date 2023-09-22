@@ -24,8 +24,8 @@ bool isWhiteSpaceInput(const char *input)
     return true; // if all characters are whitespace, return true
 }
 
-// maximum number of commands in a pipeline
-#define MAX_COMMANDS 10
+#define MAX_COMMANDS 10  // maximum number of commands in a pipeline
+#define MAX_ARGUMENTS 32 // maximum number of arguments
 
 int main(int argumentCount, char *argumentValues[])
 {
@@ -208,11 +208,26 @@ int main(int argumentCount, char *argumentValues[])
             // * store remaining input string (arguments) into args
             int arg_count = 0;
 
+            bool vectorOverrun = false;
             while ((args[arg_count] = strtok(NULL, " "))) // tokenize each remaining string of input
                                                           // until no more found
             {
                 arg_count++;
+
+                // check for argument vector overrun
+                if (arg_count >= MAX_ARGUMENTS)
+                {
+                    vectorOverrun = true;
+                }
             }
+
+            // gracefully exit if too many arguments
+            if (vectorOverrun)
+            {
+                fprintf(stderr, "Argument vector overrun: Too many arguments entered\n");
+                break;
+            }
+
             // printf("Number of argument in args: %d\n", arg_count);
 
             // int argsSize = sizeof(args) / sizeof(args[0]);
