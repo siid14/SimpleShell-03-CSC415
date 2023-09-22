@@ -9,7 +9,8 @@
  *
  * Description:  The provided code is a C program for a simple shell.
  *               It allows users to input and execute command-line commands.
- *               The code features command parsing, execution, and piping support, along with error handling.
+ *               The code features command parsing, execution,
+ *               and piping support, along with error handling.
  *               Users can gracefully exit the shell using the "exit" command.
  *               The program provides user-friendly prompts,
  *               handles empty input, and exits gracefully on encountering EOF.
@@ -24,8 +25,6 @@
 #include <stdbool.h>   // Include this header for bool type
 #include <ctype.h>
 
-// ! don't forget to use strtok_r instead of strtok to not lose points
-
 // function to check if the input is empty or contains only whitespace
 bool isWhiteSpaceInput(const char *input)
 {
@@ -35,10 +34,10 @@ bool isWhiteSpaceInput(const char *input)
         // check if the character is not a whitespace character
         if (!isspace(input[i]))
         {
-            return false; // if any non-whitespace character is found, return false
+            return false; // if any non-Wspace character is found
         }
     }
-    return true; // if all characters are whitespace, return true
+    return true; // if all characters are whitespace
 }
 
 #define MAX_COMMANDS 10  // maximum number of commands in a pipeline
@@ -46,14 +45,15 @@ bool isWhiteSpaceInput(const char *input)
 
 int main(int argumentCount, char *argumentValues[])
 {
-    // * READ USER INPUT
-    char input[187];                // store user input command of 187 characters
+
+    char input[187];                // store u-input command of 187 characters
     char *saveptr;                  // save pointer for strtok_r
     int pipes[MAX_COMMANDS - 1][2]; // array to store pipe file descriptors
 
+    // * READ USER INPUT
     while (1) // infinite loop
     {
-        printf("YourShell> "); // indicate shell ready to accept user input
+        printf("YourShell> "); // indicate shell ready to accept u-input
 
         // read user input + handle errors
         if (fgets(input, sizeof(input), stdin) == NULL)
@@ -63,7 +63,7 @@ int main(int argumentCount, char *argumentValues[])
             {
                 // gracefully exit on EOF without reporting an error
                 printf("EOF error - Exiting the shell\n");
-                return 0; // ? break to use instead
+                return 0;
             }
             else
             {
@@ -87,32 +87,22 @@ int main(int argumentCount, char *argumentValues[])
             continue;
         }
 
-        // printf("Input size (including newline): %zu\n", strlen(input));
-        // printf("Input size (excluding newline): %zu\n", strlen(input) - 1);
-
         // check for pipes in user input
         char *pipe_cmd = strchr(input, '|');
 
+        // * HANDLE USER INPUT IF IT HAS PIPING OR NOT
         if (pipe_cmd) // handle piping logic
         {
             printf("PIPE DETECTED\n");
-            // parse and execute commands separated by pipes
-            // create pipes, fork processes, and redirect IO
 
+            // * PARSE USER INPUT
             // split input into commands based on '|'
             char *command = strtok_r(input, "|", &saveptr);
             int pipe_index = 0; // initialize the pipe index
             while (command != NULL)
             {
-                // execute each command
-                printf("Command: %s\n", command);
-
                 // trim leading and trailing spaces from the command
                 char *trimmed_command = strtok(command, " \t\r\n");
-                if (trimmed_command)
-                {
-                    printf("Trimmed Command: %s\n", trimmed_command);
-                }
 
                 // create a pipe for the next pair of commands (if applicable)
                 if (pipe_index < MAX_COMMANDS - 1)
@@ -122,9 +112,9 @@ int main(int argumentCount, char *argumentValues[])
                         perror("pipe");
                         exit(1);
                     }
-                    printf("Pipe %d created\n", pipe_index);
                 }
 
+                // * EXECUTE COMMANDS
                 // fork a child process for the current command
                 pid_t child_pid = fork();
                 if (child_pid == -1)
@@ -138,18 +128,20 @@ int main(int argumentCount, char *argumentValues[])
                     // child process
                     if (pipe_index > 0)
                     {
-                        // redirect standard input (stdin) to the read end of the previous pipe
+                        // redirect standard input (stdin)
+                        // to the read end of the previous pipe
                         dup2(pipes[pipe_index - 1][0], 0);
-                        close(pipes[pipe_index - 1][0]); // close the read end of the previous pipe
-                        printf("Child: Redirected stdin to read end of Pipe %d\n", pipe_index - 1);
+                        // close the read end of the previous pipe
+                        close(pipes[pipe_index - 1][0]);
                     }
 
                     if (pipe_index < MAX_COMMANDS - 1)
                     {
-                        // redirect standard output (stdout) to the write end of the current pipe
+                        // redirect standard output (stdout)
+                        // to the write end of the current pipe
                         dup2(pipes[pipe_index][1], 1);
-                        close(pipes[pipe_index][1]); // close the write end of the current pipe
-                        printf("Child: Redirected stdout to write end of Pipe %d\n", pipe_index);
+                        // close the write end of the current pipe
+                        close(pipes[pipe_index][1]);
                     }
 
                     // close all other pipe ends in the child process
@@ -175,7 +167,6 @@ int main(int argumentCount, char *argumentValues[])
                     {
                         close(pipes[pipe_index - 1][0]);
                         close(pipes[pipe_index - 1][1]);
-                        printf("Closed pipe %d ends\n", pipe_index - 1);
                     }
 
                     pipe_index++;
@@ -190,26 +181,25 @@ int main(int argumentCount, char *argumentValues[])
             {
                 // close the write end of the previous pipe
                 close(pipes[i][1]);
-                printf("Write end of Pipe %d closed\n", i);
 
                 // close the read end of the current pipe
                 close(pipes[i][0]);
-                printf("Read end of Pipe %d closed\n", i);
             }
         }
         else // handle non-piping logic
         {
             printf("NO PIPE DETECTED\n");
             // remove trailing newline character if present
-            if (input[strlen(input) - 1] == '\n') // check if last char in input is a newline character
+            // check if last char in input is a newline character
+            if (input[strlen(input) - 1] == '\n')
             {
-                input[strlen(input) - 1] = '\0'; // replace '\n' with null terminator '\0'
+                // replace '\n' with null terminator '\0'
+                input[strlen(input) - 1] = '\0';
             }
-            // }
 
             // * PARSE USER INPUT
-            char *command = strtok(input, " "); // tokenize first string of user input
-            printf("Command: %s\n", command);
+            // tokenize first string of user input
+            char *command = strtok(input, " ");
 
             // handle exit input to exit shell (edge case)
             if (strcmp(command, "exit") == 0 || strcmp(command, "EXIT") == 0)
@@ -223,8 +213,8 @@ int main(int argumentCount, char *argumentValues[])
             int arg_count = 0;
 
             bool vectorOverrun = false;
-            while ((args[arg_count] = strtok(NULL, " "))) // tokenize each remaining string of input
-                                                          // until no more found
+            // tokenize each remaining string of input until no more found
+            while ((args[arg_count] = strtok(NULL, " ")))
             {
                 arg_count++;
 
@@ -238,18 +228,13 @@ int main(int argumentCount, char *argumentValues[])
             // gracefully exit if too many arguments
             if (vectorOverrun)
             {
-                fprintf(stderr, "Argument vector overrun: Too many arguments entered\n");
+                fprintf(stderr, "vector overrun: Too many arguments\n");
                 break;
             }
 
-            // printf("Number of argument in args: %d\n", arg_count);
-
-            // int argsSize = sizeof(args) / sizeof(args[0]);
-            // printf("Number of elements in args: %d\n", argsSize);
-
             char **argsTest;
             int len = arg_count; // number of strings to store
-            // printf("len: %d\n", len);
+
             argsTest = malloc(sizeof(char *) * len);
 
             // check if memory allocation was successful
@@ -264,10 +249,8 @@ int main(int argumentCount, char *argumentValues[])
             for (int i = 0; i < len; i++)
             {
                 argsTest[i] = args[i];
-                // printf("argsTest[%d]: %s\n", i, argsTest[i]);
             }
 
-            // ? unaccessary
             // check if memory allocation for strings was successful
             for (int i = 0; i < len; i++)
             {
@@ -281,18 +264,6 @@ int main(int argumentCount, char *argumentValues[])
             // ensure the last element of the argsTest array is NULL
             argsTest[len] = NULL;
 
-            // printf("argsTest[%d]: %s\n", len, argsTest[len]);
-            // printf("Printing argsTest:\n");
-
-            // printing argsTest size
-            // for (int i = 0; argsTest[i] != NULL; i++)
-            // {
-            //     printf("%s\n", argsTest[i]);
-            // }
-
-            // int argsTestSize = sizeof(argsTest) / sizeof(argsTest[0]);
-            // printf("Number of arguments in argsTest (after adding NULL - last index): %d\n", argsTestSize);
-
             // * EXECUTE COMMANDS
             printf("START EXECUTION USER COMMAND\n");
             pid_t child_pid = fork(); // create a new process (child).
@@ -300,13 +271,16 @@ int main(int argumentCount, char *argumentValues[])
             if (child_pid == 0) // fork succeed to create a child process
             {
                 // child process
-                execvp(command, argsTest); // execute the specified command with given arguments
+                // execute the specified command with given arguments
+                execvp(command, argsTest);
 
                 // if execvp() fails, it means the command doesn't exist
                 fprintf(stderr, "Command '%s' not found\n", command);
                 // if execvp() fails, handle the error
                 perror("execvp"); // print an error message
-                _exit(1);         // exit the child process with a non-zero status to indicate an error
+                // exit the child process
+                // with a non-zero status to indicate an error
+                _exit(1);
             }
             else if (child_pid < 0) // fork failed to create a child process
             {
@@ -314,15 +288,16 @@ int main(int argumentCount, char *argumentValues[])
             }
             else // parent process
             {
-                int status;                     // variable to store the child process's exit status
-                waitpid(child_pid, &status, 0); // wait for the child process to complete
+                // store the child process's exit status
+                int status;
+                // wait for the child process to complete
+                waitpid(child_pid, &status, 0);
 
                 // print the child PID and return result (exit status)
                 printf("Child PID: %d\n", child_pid);
                 printf("Return Result: %d\n", status);
             }
             printf("END EXECUTION USER COMMAND\n");
-
             free(argsTest); // free allocated memory
         }
     }
