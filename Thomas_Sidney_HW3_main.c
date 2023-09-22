@@ -87,9 +87,65 @@ int main(int argumentCount, char *argumentValues[])
                     }
                     printf("Pipe %d created\n", pipe_index);
                 }
+
+                // fork a child process for the current command
+                pid_t child_pid = fork();
+                if (child_pid == -1)
+                {
+                    perror("fork");
+                    exit(1);
+                }
+
+                if (child_pid == 0)
+                {
+                    // child process
+                    if (pipe_index > 0)
+                    {
+                        // redirect standard input (stdin) to the read end of the previous pipe
+                        dup2(pipes[pipe_index - 1][0], 0);
+                        close(pipes[pipe_index - 1][0]); // close the read end of the previous pipe
+                        printf("Child: Redirected stdin to read end of Pipe %d\n", pipe_index - 1);
+                    }
+
+                    if (pipe_index < MAX_COMMANDS - 1)
+                    {
+                        // redirect standard output (stdout) to the write end of the current pipe
+                        dup2(pipes[pipe_index][1], 1);
+                        close(pipes[pipe_index][1]); // close the write end of the current pipe
+                        printf("Child: Redirected stdout to write end of Pipe %d\n", pipe_index);
+                                        }
+
+                    // close all other pipe ends in the child process
+                    for (int i = 0; i < MAX_COMMANDS - 1; i++)
+                    {
+                        if (i != pipe_index - 1 && i != pipe_index)
+                        {
+                            close(pipes[i][0]);
+                            close(pipes[i][1]);
+                        }
+                    }
+
+                    // execute the current command
+                    execlp(command, command, NULL);
+                    perror("exec");
+                    exit(1);
+                }
+                else
+                {
+                    // parent process
+                    // close pipe ends in the parent process
+                    if (pipe_index > 0)
+                    {
+                        close(pipes[pipe_index - 1][0]);
+                        close(pipes[pipe_index - 1][1]);
+                        printf("Closed pipe %d ends\n", pipe_index - 1);
+                    }
+
+                    pipe_index++;
+                }
+
                 // move to the next command
                 command = strtok_r(NULL, "|", &saveptr);
-                pipe_index++;
             }
 
             // close unused pipe ends
