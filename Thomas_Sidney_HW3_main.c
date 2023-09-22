@@ -1,3 +1,19 @@
+/**************************************************************
+ * Class:  CSC-415-01 Fall 2023
+ * Name: Sidney Thomas
+ * Student ID: 918656419
+ * GitHub ID: siid14
+ * Project: Assignment 3 – Simple Shell
+ *
+ * File: Thomas_Sidnney_HW3_main.c
+ *
+ * Description:  The provided code is a C program for a simple shell.
+ *               It allows users to input and execute command-line commands.
+ *               The code features command parsing, execution, and piping support, along with error handling.
+ *               Users can gracefully exit the shell using the "exit" command.
+ *               The program provides user-friendly prompts,
+ *               handles empty input, and exits gracefully on encountering EOF.
+ **************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
